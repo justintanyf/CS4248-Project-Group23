@@ -64,7 +64,7 @@ We fine-tuned the pre-trained BERT base model ("bert-base-uncased") due to compu
 
 #### Smaller BERT Models
 
-We tested smaller BERT models with fewer attention layers to investigate potential overfitting. However, the performance was similar, indicating that the number of attention layers was not the cause of lower test scores.
+We tested smaller BERT models with fewer attention layers to investigate potential overfitting. However, the performance was similar, indicating that the number of attention layers was not the cause of lower test scores. Due to github's storage limitations, these models are not uploaded here. Do contact us if you require them.
 
 ## Results
 
