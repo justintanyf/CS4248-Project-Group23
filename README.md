@@ -56,11 +56,9 @@ The training and test corpus consists of a series of news articles that are labe
 
 In total, there are almost 49,000 data points in the training dataset (to be precise, 48,854 data points). The breakup of this distribution is given in Figure 1. The dataset is heavily imbalanced, with the majority of the articles being classified as propaganda. Only 20\% of the news items are classified as reliable. This needs to be addressed for our model to not automatically lean towards classifying a news article as unreliable.
 
-![Figure 1: Distribution of news articles across 4 categories in training corpora](figures/EDACategories.png)
 
 The news articles are also of varying length. Figure 2 shows the box plot of the number of characters in each news article. Input text lengths range from 9 to 735,607. Note that the data point with 735,607 characters is the sole point not included in Figure 2 for the sake of scale. Nevertheless, even while excluding this entry, we see that there are several outliers. The interquartile range for character length is 3399, which is quite large. We cannot afford to filter out data points if they have a large character length, since news articles will always be of variable sizes. Therefore, our model's preprocessing techniques should account for varying sizes as well.
 
-![Figure 2: Box plot of news article lengths in training corpora](figures/ArticleLengthsBoxPlot.png)
 
 ### Pre-processing Techniques
 
@@ -84,8 +82,6 @@ Before trying advanced models, we used traditional ML models to get a baseline f
 | Logistic Regression | TF-IDF | F1-score: 0.836 Accuracy: 0.924 |
 | Logistic Regression | GloVE | F1-score: 0.663 Accuracy: 0.670 |
 
-<center>Figure 3: Table containing various baseline Logistic Regression and Naive Bayes models and their evaluation metrics</center>
-
 As the table shows, our best-performing model is the Logistic Regression model with TF-IDF pre-processing, which has an F1 score of 0.836 and an accuracy of 0.94. Our baseline models are already very accurate and high-performing.
 
 From this, we move on to trying different types of neural network architecture.
@@ -95,8 +91,6 @@ From this, we move on to trying different types of neural network architecture.
 Neural networks are multi-layered models inspired by the neurons in our brains. Each layer of a neural network consists of perceptrons, which take a weighted sum of the output of the previous layer and run the result through an activation function.
 
 Here, we implemented a basic four-layer neural network as a baseline for other neural network models. The neural network uses the GloVe vectors as input. Each linear layer is followed by a ReLU activation function, except the last layer which has a Sigmoid activation function, as this is a binary classification problem. The choice of neural network size is arbitrary, as testing many different layer sizes and layer counts yielded similar F1-scores on the test set.
-
-![Figure 4: Graph of Training Error and Validation F1-score against the number of training epochs](figures/NNPlot.png)
 
 After training for 400 epochs, this neural network achieves a validation F1-score of 0.882 and an accuracy of 0.909 and provides a baseline performance measurement before moving on to more complex models. The test F1-score is 0.833 with an accuracy of 0.806.
 
@@ -132,13 +126,9 @@ Our best version has accuracy and F1-score of over 0.97 in training and validati
 
 We experimented with changing the number of attention layers in the BERT model. We hypothesized that the default 12 attention layer model might be too powerful for our small dataset, and therefore a lower number of attention layers might prevent overfitting. Therefore, we constructed models using different variants of BERT with 2,4,8, and 12 attention layers. However, the performance for all the variants is nearly identical, indicating that changing the number of attention layers has very little effect. The default BERT model narrowly gave the best performance, with an F1-score of 0.75.
 
-![Figure 5: F1-scores and accuracy for each model in the test dataset](figures/BERT_variations_test_scores.png)
-
 #### Micro-instance analysis
 
 Further analysis of the outputs of the model shows that certain keywords will flip the prediction from unreliable to reliable and vice-versa. For example, certain countries/states are often deemed more reliable than others, as demonstrated in Figure 6.
-
-![Figure 6: Datapoint from the test dataset which can be classified differently if slightly modified](figures/country_prediction.png)
 
 "Court approves death sentences for leaders of Bangladesh's 1975 coup." This data point from the test corpora was labeled unreliable by the model; however, it is actually reliable. We experimented with replacing Bangladesh with different countries and cities and realized that this was enough to flip the model's prediction. Figure 7 shows the substituting country/city and the resulting prediction of the sentence. With a short article, each word carries more significance, and replacing a keyword could change the prediction, compared to a longer article with more context supporting the prediction. Interestingly, the model seems to generally associate countries from the "Global North" as reliable and those from the "Global South" as unreliable (though there are some exceptions such as Australia). This could reflect a potential bias in the training dataset.
 
@@ -146,8 +136,6 @@ Further analysis of the outputs of the model shows that certain keywords will fl
 | --- | --- |
 | Reliable | New York, United States, England, Germany, France, London, Singapore, California |
 | Unreliable | Australia, Texas, Mexico, India, China, Cuba, Russia, North Korea, Brazil |
-
-<center>Figure 7: Table of which county or city name substitutions in microinstance provide reliable and unreliable predictions</center>
 
 ### Final Model and Analysis
 
@@ -161,11 +149,7 @@ The test set is classified into 4 distinct domains and 12 subtopics. The 4 domai
 
 Figure 8 shows the domain-specific F1 scores produced by our LSTM model. As seen, the model works best for ‘Politics/Civics’ articles, with an F1-score of 0.85, and worst for ‘Soft News’ articles, with an F1-score of 0.82. However, the range in F1-scores for all four categories is only 0.04, which is extremely small. There is no domain seen where the model works significantly better or significantly worse.
 
-![Figure 8: F1-scores for each domain in the test dataset](figures/F1_domain_breakdown.png)
-
 We see similar results when we break the dataset down by subtopics. Figure 9 illustrates that the F1-score is highest for the "Environment" subtopic with an F1-Score of 0.91 and lowest for the "Hard Science" subtopic with an F1-Score of 0.77. While there is more variation than in the domain segmentation, there is still no subtopic where the model performs exceptionally well or badly.
-
-![Figure 9: F1-scores for each subtopic in the test dataset](figures/F1_subtopic_breakdown.png)
 
 #### Sentiment analysis
 
@@ -177,8 +161,6 @@ To analyze the sentiment of each news article, the Afinn Python library was util
 | -3-3 | 0.89 |
 | >3 | 0.75 |
 
-<center>Figure 10: Table of F1-scores corresponding to dataset breakdown based on Afinn sentiment score</center>
-
 #### By article length
 
 To analyze how article length affects the model's performance, we broke down the dataset into four equal segments, based on the length of the articles (measured by the number of characters in the document). Each segment, therefore, represents a quartile of the dataset when measured by article length. Figure 11 shows there is significant variation in the performance of the model according to article length. The model is extremely accurate on smaller articles (with an F1-score of 0.93) and performs extremely poorly on larger articles (with an F1-score of 0.14). Article length is a significant contributing factor that affects how accurately the model can classify news articles.
@@ -189,8 +171,6 @@ To analyze how article length affects the model's performance, we broke down the
 | Q2 | 0.92 |
 | Q3 | 0.73 |
 | Q4 | 0.28 |
-
-<center>Figure 11: Table of F1-scores corresponding to dataset breakdown based on document length of news articles, grouped by quartiles</center>
 
 ## Discussion
 
@@ -212,8 +192,6 @@ To analyze how article length affects the model's performance, we broke down the
    | Q2 | 0.89 | 0.92 |
    | Q3 | 0.64 | 0.73 |
    | Q4 | 0.14 | 0.28 |
-
-   <center>Figure 12: Table of F1-scores for our BERT and LSTM models corresponding to dataset breakdown based on document length of news articles, grouped by quartiles</center>
 
    These dramatic differences in performance could be due to BERT's maximum sequence length of 512. The minimum length of words is 619 in this test dataset, which is already greater than the maximum sequence length for BERT. The range of character lengths where the model performs exceptionally poorly is from 4485 to 21851. Therefore, the maximum length of 512 might not be sufficient to gain context of the entire article when the article is very long. On the other hand, LSTM does not have this maximum sequence length limitation, which might be why it can classify longer articles better for our use case.
 
